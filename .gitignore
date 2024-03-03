@@ -361,3 +361,8 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/WebClient/profpushsender-firebase.json
+/WebPushServer/profpushsender-7e9b8364ae3a.json
+/WebPushServer/profpushsender-firebase.json
+/WebPushServer/profpushsender.json
+/AndroidAppClient/google-services.json
