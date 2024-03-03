@@ -70,16 +70,16 @@ namespace AndroidAppClient
 				return;
 			}
 
-			var channel = new NotificationChannel(CHANNEL_ID,
-												  "FCM Notifications",
-												  NotificationImportance.Default)
-			{
+			//var channel = new NotificationChannel(CHANNEL_ID,
+			//									  "FCM Notifications",
+			//									  NotificationImportance.Default)
+			//{
 
-				Description = "Firebase Cloud Messages appear in this channel"
-			};
+			//	Description = "Firebase Cloud Messages appear in this channel"
+			//};
 
-			var notificationManager = (NotificationManager)GetSystemService(Android.Content.Context.NotificationService);
-			notificationManager.CreateNotificationChannel(channel);
+			//var notificationManager = (NotificationManager)GetSystemService(Android.Content.Context.NotificationService);
+			//notificationManager.CreateNotificationChannel(channel);
 		}
 	}
 

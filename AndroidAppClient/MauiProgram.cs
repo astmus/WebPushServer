@@ -1,10 +1,14 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Firebase;
+
+using Microsoft.Extensions.Logging;
 using Microsoft.Maui.LifecycleEvents;
 
 namespace AndroidAppClient
 {
 	public static class MauiProgram
 	{
+		public static FirebaseApp FireApp => _fireApp;
+		static FirebaseApp _fireApp;
 		public static MauiApp CreateMauiApp()
 		{
 			var builder = MauiApp.CreateBuilder();
@@ -39,7 +43,7 @@ Firebase.Crashlytics.Crashlytics.SharedInstance.SendUnsentReports();
 #else
 				events.AddAndroid(android => android.OnCreate((activity, bundle) =>
 				{
-					Firebase.FirebaseApp.InitializeApp(activity);
+					_fireApp = FirebaseApp.InitializeApp(activity);
 				}));
 #endif
 			});

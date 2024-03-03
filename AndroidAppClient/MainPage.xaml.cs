@@ -12,13 +12,16 @@ namespace AndroidAppClient
 		public MainPage()
 		{
 			InitializeComponent();
+
 		}
 
 		private async void OnCounterClicked(object sender, EventArgs e)
 		{
 			count++;
-			var InstanceIDtoken = FirebaseInstanceId.Instance.Token;
-			//FirebaseMessaging.Instance.GetToken().AddOnSuccessListener(;
+			var app = MauiProgram.FireApp;
+			//FirebaseInstanceId.GetInstance(app);
+			var token = await FirebaseMessaging.Instance.GetToken();
+
 			//var refreshedToken = FirebaseInstanceId.Instance.Token;
 			//var token = await CrossFirebaseCloudMessaging.Current.GetTokenAsync();
 			//var Token = token;
