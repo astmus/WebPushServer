@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+			 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+			 x:Class="AndroidAppClient.MainPage">
+
+	<ScrollView>
+		<VerticalStackLayout
+			Padding="30,0"
+			Spacing="25">
+			<Image
+				Source="dotnet_bot.png"
+				HeightRequest="185"
+				Aspect="AspectFit"
+				SemanticProperties.Description="dot net bot in a race car number eight" />
+
+			<Label
+				Text="Hello, World!"
+				Style="{StaticResource Headline}"
+				SemanticProperties.HeadingLevel="Level1" />
+			<HorizontalStackLayout>
+				<Label TextColor="OrangeRed"
+				Text="А подписаны ли мы"
+				Style="{StaticResource SubHeadline}"/>
+				<Label x:Name="subsLabel"
+				Text="{Binding Path=isSubscribed}"
+				Style="{StaticResource SubHeadline}" MinimumWidthRequest="40"/>
+
+			</HorizontalStackLayout>
+
+
+			<Button
+				x:Name="CounterBtn"
+				Text="Click me" 
+				SemanticProperties.Hint="Counts the number of times you click"
+				Clicked="OnCounterClicked"
+				HorizontalOptions="Fill" />
+
+			<Button
+				x:Name="SubBtn"
+				Text="Подписаться на сегодня" 
+				SemanticProperties.Hint="Подписаться на сегодня"
+				Clicked="SubBtn_Clicked"
+				HorizontalOptions="Fill" />
+
+		</VerticalStackLayout>
+	</ScrollView>
+
+</ContentPage>

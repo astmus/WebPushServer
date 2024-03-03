@@ -1,0 +1,13 @@
+﻿@WebPushServer_HostAddress = http://localhost:5063
+
+POST {{WebPushServer_HostAddress}}/subscribe
+
+###
+
+POST {{WebPushServer_HostAddress}}/send-notification
+
+###
+
+POST {{WebPushServer_HostAddress}}/send-now
+
+###

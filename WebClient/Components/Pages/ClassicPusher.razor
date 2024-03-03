@@ -1,0 +1,68 @@
+﻿@page "/ClassicPusher"
+@using FirebaseAdmin
+@using FirebaseAdmin.Auth
+@using FirebaseAdmin.Messaging
+@using Newtonsoft.Json
+@rendermode InteractiveServer
+@inject FirebaseApp fireApp;
+
+<PageTitle>Push</PageTitle>
+
+<h1>Pushuper</h1>
+
+<p>@Status</p>
+<br />
+<button class="btn btn-primary" style="width:200px; margin:5px" @onclick="GetAuth">Авторизоваться</button>
+<label>@Auth</label>
+<br />
+<button class="btn btn-primary" style="width:200px;margin:5px" @onclick="()=>Send(MessageValue)">Отправить push</button>
+<div>
+	<label>
+		Сообщение push:
+		<InputText @bind-Value="MessageValue" />
+	</label>
+</div>
+<br />
+
+<label>@LastPush</label>
+
+@code {
+	private int currentCount = 0;
+
+	protected string Auth { get; set; } = "Не ваторизовано";
+	protected string LastPush { get; set; } = "";
+	protected string Status { get; set; } = "";
+	protected string MessageValue { get; set; }
+
+	private void IncrementCount()
+	{
+		currentCount++;
+	}
+
+	private void GetAuth()
+	{
+		var app = fireApp;
+		var defaultAuth = FirebaseAuth.GetAuth(fireApp);
+		Auth = JsonConvert.SerializeObject(defaultAuth, Formatting.Indented);
+	}
+
+	async Task Send(string msg)
+	{
+		var tickDate = DateTime.Now.Date.Ticks.ToString();
+		var condition = $"'{tickDate}' in topics";
+
+		var message = new Message()
+			{
+				Notification = new Notification() { Title = $"Channel of  {tickDate}", Body = msg },
+				Condition = condition
+			};
+
+		Status = "отпарвляем сообщение";
+
+		var messaging = FirebaseMessaging.GetMessaging(fireApp);
+		var response = await messaging.SendAsync(message);
+
+		Status = "отправлено";
+		LastPush += response + Environment.NewLine;
+	}
+}

@@ -1,0 +1,66 @@
+﻿@{
+	ViewData["Title"] = "Home Page";
+}
+@* <script type="module">
+	// Import the functions you need from the SDKs you need
+	import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+	// TODO: Add SDKs for Firebase products that you want to use
+	// https://firebase.google.com/docs/web/setup#available-libraries
+	import { message } from 'firebase/messaging';
+	// Your web app's Firebase configuration
+	const firebaseConfig = {
+		apiKey: "AIzaSyDsEP6ZJ61UsyDftgjxH_mZSrSVfgulnuY",
+		authDomain: "profsender2.firebaseapp.com",
+		projectId: "profsender2",
+		storageBucket: "profsender2.appspot.com",
+		messagingSenderId: "237287508676",
+		appId: "1:237287508676:web:0aa2ed03f97e6ebcea5791"
+	};
+
+	// Initialize Firebase
+	const app = initializeApp(firebaseConfig);
+</script> *@
+<body>
+	<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+	<script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+	<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js"></script>
+	<script>
+		function toClipboard(text) {
+			const tmp = document.createElement('textarea');
+			tmp.hidden = true;
+			tmp.value = text;
+			window.document.body.appendChild(tmp);
+			tmp.select();
+			window.document.execCommand("copy");
+			alert("Copied the text: " + text);
+			window.document.body.removeChild(tmp);
+		}
+	</script>
+	<button onclick="enableNotifications()">Получать уведомления</button>
+	<div id="pushTokenLayer" hidden>
+		Firebase token <code id="pushTokenValue" style="cursor:pointer" onclick="toClipboard(this.innerText)"></code><br />
+	</div>
+	<script>
+		async function enableNotifications() {
+			// Insert your firebase project config here
+			const firebaseConfig = {
+				apiKey: "AIzaSyCWeAth7O5tU3AKwZYxkp4qrOK58NPGi1o",
+				authDomain: "profpushsender.firebaseapp.com",
+				projectId: "profpushsender",
+				storageBucket: "profpushsender.appspot.com",
+				messagingSenderId: "98932453548",
+				appId: "1:98932453548:web:84222fd4d84ab024f66f09"
+			};
+
+			const app = firebase.initializeApp(firebaseConfig);
+			const messaging = app.messaging();
+
+			const token = await messaging.getToken({ vapidKey: 'BBRuLI-sBw04fdwtDX2sVcjZvZmzGpfH0PZaxz47-iEeIp97BtSlwkzL0yv0e6Tlhx_nNgUzkB8Iq1KraYzGRfs' });
+
+			window.document.getElementById("pushTokenLayer").removeAttribute("hidden");
+
+			const pushTokenValue = window.document.getElementById("pushTokenValue");
+			pushTokenValue.innerText = token
+		}
+	</script>
+</body>
