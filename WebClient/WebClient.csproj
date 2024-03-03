@@ -8,6 +8,27 @@
 
   <ItemGroup>
     <PackageReference Include="FirebaseAdmin" Version="2.4.0" />
+    <PackageReference Include="linq2db.AspNet" Version="5.4.0" />
+    <PackageReference Include="linq2db.PostgreSQL" Version="5.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="DataModel\MyDataBase.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>MyDataBase.generated.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="DataModel\MyDataBase.generated.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>MyDataBase.tt</DependentUpon>
+    </Compile>
   </ItemGroup>
 
 </Project>

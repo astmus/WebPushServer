@@ -1,10 +1,14 @@
-﻿@page "/ClassicPusher"
+﻿@page "/CustomPusher"
+@using DataModels
 @using FirebaseAdmin
 @using FirebaseAdmin.Auth
 @using FirebaseAdmin.Messaging
+@using LinqToDB.Data
 @using Newtonsoft.Json
+@using System.Diagnostics
 @rendermode InteractiveServer
 @inject FirebaseApp fireApp;
+
 
 <PageTitle>Push</PageTitle>
 
@@ -50,6 +54,8 @@
 	{
 		var tickDate = DateTime.Now.Date.Ticks.ToString();
 		var condition = $"'{tickDate}' in topics";
+		var sw = new Stopwatch();
+		sw.Restart();
 
 		var message = new Message()
 			{
@@ -62,7 +68,10 @@
 		var messaging = FirebaseMessaging.GetMessaging(fireApp);
 		var response = await messaging.SendAsync(message);
 
-		Status = "отправлено";
+		Status = $"доставлено {sw.Elapsed}";
+
 		LastPush += response + Environment.NewLine;
 	}
+
+
 }

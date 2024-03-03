@@ -1,8 +1,11 @@
 using FirebaseAdmin;
-
+using LinqToDB.Extensions;
+using LinqToDB.AspNet;
 using Google.Apis.Auth.OAuth2;
 
 using WebClient.Components;
+using DataModels;
+using LinqToDB;
 
 namespace WebClient
 {
@@ -21,6 +24,11 @@ namespace WebClient
 				{
 					Credential = GoogleCredential.FromFile("profpushsender-firebase.json")
 				}));
+
+			builder.Services.AddLinqToDBContext<ILogsDB, LogsDB>((sp, opt) =>
+			{
+				return opt.UsePostgreSQL("Host=localhost;Database=logs;Username=postgres;Password=123;Persist Security Info=True");
+			});
 
 			var app = builder.Build();
 

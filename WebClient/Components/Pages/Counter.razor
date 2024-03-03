@@ -1,4 +1,5 @@
-﻿@page "/counter"
+﻿@page "/ClassicPusher"
+@using DataModels
 @using FirebaseAdmin
 @using FirebaseAdmin.Auth
 @using FirebaseAdmin.Messaging
@@ -6,6 +7,7 @@
 @using System.Diagnostics
 @rendermode InteractiveServer
 @inject FirebaseApp fireApp;
+@inject ILogsDB dataBase;
 
 <PageTitle>Counter</PageTitle>
 
@@ -16,16 +18,17 @@
 <button class="btn btn-primary" style="width:200px; margin:5px" @onclick="GetAuth">Авторизоваться</button>
 <label>@Auth</label>
 <br />
-<button class="btn btn-primary" style="width:200px;margin:5px" @onclick="()=>Send(MessageValue)">Отправить push</button>
+<button class="btn btn-primary" style="width:200px;margin:5px" @onclick="()=>SendByToken(MessageValue, MessageCount)">Отправить push</button>
 <div>
 	<label>
 		Сообщение push:
 		<InputText @bind-Value="MessageValue" />
+		<InputText @bind-Value="MessageCount" style="width:50px" />
 	</label>
 </div>
 <br />
-
 <label>@LastPush</label>
+
 
 @code {
 	private int currentCount = 0;
@@ -34,6 +37,7 @@
 	protected string LastPush { get; set; } = "";
 	protected string Status { get; set; } = "";
 	protected string MessageValue { get; set; }
+	protected string MessageCount { get; set; }
 
 	private void IncrementCount()
 	{
@@ -47,25 +51,40 @@
 		Auth = JsonConvert.SerializeObject(defaultAuth, Formatting.Indented);
 	}
 
-	async Task Send(string msg)
+	async Task SendByToken(string msg, string count)
 	{
 		var sw = new Stopwatch();
 		sw.Restart();
+		int sendCount;
+		if (int.TryParse(count, out sendCount) == false)
+			sendCount = 1;
 		var tickDate = DateTime.Now.Date.Ticks.ToString();
-		var condition = $"'{tickDate}' in topics";
 
-		var message = new Message()
-			{
-				Notification = new Notification() { Title = $"Channel of  {tickDate}", Body = msg },
-				Condition = condition
-			};
+		Push push = dataBase.Pushes.FirstOrDefault()!;
+
+		var msgs = Enumerable.Range(0, sendCount).Select(index =>
+			new Message()
+				{
+					Notification = new Notification() { Title = $"Channel of  {tickDate}", Body = msg },
+					Token = push.Token
+				}
+		);
 
 		Status = "отпарвляем сообщение";
 
 		var messaging = FirebaseMessaging.GetMessaging(fireApp);
-		var response = await messaging.SendAsync(message);
-
-		Status = $"доставлено {sw.Elapsed}";
-		LastPush += response + Environment.NewLine;
+		try
+		{
+			foreach (var message in msgs)
+			{
+				var response = await messaging.SendAsync(message);
+				LastPush += response + Environment.NewLine;
+			}
+			Status = $"доставлено {sw.Elapsed}";
+		}
+		catch (Exception error)
+		{
+			Status = $"Ошибка {error.Message}";
+		}
 	}
 }
