@@ -61,12 +61,10 @@
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0-ios|AnyCPU'">
 		<MtouchLink>SdkOnly</MtouchLink>
 		<CodesignEntitlements />
-		<AdditionalArgs>-lAdobeMobile</AdditionalArgs>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net7.0-ios|AnyCPU'">
 		<CodesignEntitlements />
-		<AdditionalArgs>-lAdobeMobile</AdditionalArgs>
 	</PropertyGroup>
 
 	<ItemGroup>

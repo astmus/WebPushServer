@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebAppPushClient", "WebAppP
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AndroidAppClient", "AndroidAppClient\AndroidAppClient.csproj", "{2188921C-306E-4ADF-8041-2B8B279D7C46}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebClient", "WebClient\WebClient.csproj", "{EB495339-C7C4-494D-8DFA-0476CA6FE287}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebClient", "WebClient\WebClient.csproj", "{EB495339-C7C4-494D-8DFA-0476CA6FE287}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

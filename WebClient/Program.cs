@@ -6,6 +6,11 @@ using Google.Apis.Auth.OAuth2;
 using WebClient.Components;
 using DataModels;
 using LinqToDB;
+using Google.Cloud.PubSub.V1;
+using Grpc.Core;
+using Google.Protobuf.Collections;
+using System.Text;
+using Google.Protobuf;
 
 namespace WebClient
 {
@@ -49,6 +54,70 @@ namespace WebClient
 				.AddInteractiveServerRenderMode();
 
 			app.Run();
+		}
+	}
+
+	public static class ClientExtensions
+	{
+		public static Topic NewTopic(this PublisherServiceApiClient publisher, string projectId, string topicId)
+		{
+			var topicName = TopicName.FromProjectTopic(projectId, topicId);
+			Topic topic = null!;
+
+			try
+			{
+				topic = publisher.CreateTopic(topicName);
+				Console.WriteLine($"Topic {topic.Name} created.");
+			}
+			catch (RpcException e) when (e.Status.StatusCode == StatusCode.AlreadyExists)
+			{
+				Console.WriteLine($"Topic {topicName} already exists.");
+			}
+			return topic;
+		}
+
+		public static IEnumerable<string> ListSubscriptionsInTopic(this PublisherServiceApiClient publisher, string projectId, string topicId)
+		{
+			TopicName topicName = TopicName.FromProjectTopic(projectId, topicId);
+			IEnumerable<string> subscriptions = publisher.ListTopicSubscriptions(topicName);
+			return subscriptions;
+		}
+
+		public static async Task<PublishResponse?> PublishMessagesAsync(this PublisherServiceApiClient publisher, string projectId, string topicId, IEnumerable<string> messageTexts)
+		{
+			TopicName topicName = TopicName.FromProjectTopic(projectId, topicId);
+
+			int publishedMessageCount = 0;
+			var publishTasks = messageTexts.Select(text =>
+			{
+				try
+				{
+					return new PubsubMessage
+					{
+
+						Data = ByteString.CopyFromUtf8(text),
+						Attributes =
+						{
+							{ "description", "Simple text message" }
+						}
+					};
+				}
+				catch (Exception exception)
+				{
+					Console.WriteLine($"An error occurred when publishing message {text}: {exception.Message}");
+				}
+				return default;
+			}).ToList();
+			try
+			{
+				return await publisher.PublishAsync(topicName, publishTasks);
+			}
+			catch (Exception err)
+			{
+				Console.WriteLine($"Published message {err.Message}");
+			}
+
+			return default;
 		}
 	}
 }

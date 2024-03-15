@@ -1,14 +1,26 @@
-﻿using Firebase;
+﻿
+#if IOS
+using Plugin.Firebase.Auth;
+using Plugin.Firebase.Core.Platforms.iOS;
+#elif ANDROID
+//using Plugin.Firebase.Core.Platforms.Android;
+using Firebase;
+#endif
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.LifecycleEvents;
+using Microsoft.Maui.Hosting;
+using Microsoft.Maui.Controls.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace AndroidAppClient
 {
 	public static class MauiProgram
 	{
+#if ANDROID
 		public static FirebaseApp FireApp => _fireApp;
 		static FirebaseApp _fireApp;
+#endif
 		public static MauiApp CreateMauiApp()
 		{
 			var builder = MauiApp.CreateBuilder();
@@ -33,13 +45,15 @@ namespace AndroidAppClient
 			builder.ConfigureLifecycleEvents(events =>
 			{
 #if IOS
-			events.AddiOS(iOS => iOS.FinishedLaunching((app, launchOptions) => {
-				Firebase.Core.App.Configure();
-Firebase.Crashlytics.Crashlytics.SharedInstance.Init();
-Firebase.Crashlytics.Crashlytics.SharedInstance.SetCrashlyticsCollectionEnabled(true);
-Firebase.Crashlytics.Crashlytics.SharedInstance.SendUnsentReports();
-				return false;
-			}));
+				events.AddiOS(iOS => iOS.FinishedLaunching((app, launchOptions) =>
+				{
+					CrossFirebase.Initialize();
+					//Firebase.Core.App.Configure();
+					Firebase.Crashlytics.Crashlytics.SharedInstance.Init();
+					Firebase.Crashlytics.Crashlytics.SharedInstance.SetCrashlyticsCollectionEnabled(true);
+					Firebase.Crashlytics.Crashlytics.SharedInstance.SendUnsentReports();
+					return false;
+				}));
 #else
 				events.AddAndroid(android => android.OnCreate((activity, bundle) =>
 				{
@@ -48,6 +62,10 @@ Firebase.Crashlytics.Crashlytics.SharedInstance.SendUnsentReports();
 #endif
 			});
 
+#if IOS
+			CrossFirebaseAuth.Current.UseEmulator("0.0.0.0", 9099);
+			builder.Services.AddSingleton(_ => CrossFirebaseAuth.Current);
+#endif
 			return builder;
 		}
 

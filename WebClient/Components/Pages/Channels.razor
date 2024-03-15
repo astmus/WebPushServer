@@ -1,0 +1,222 @@
+﻿@page "/Channels"
+@using DataModels
+@using FirebaseAdmin
+@using FirebaseAdmin.Auth
+@using FirebaseAdmin.Messaging
+@using Google.Api.Gax.ResourceNames
+@using Google.Apis.Auth.OAuth2
+@using Google.Protobuf
+@using Grpc.Core
+@using Newtonsoft.Json
+@using System.Diagnostics
+@using Google.Cloud.PubSub.V1;
+@using Google.Cloud.Iam.V1;
+@using Google.Cloud.Firestore;
+@using WebClient;
+@using CorePush;
+@rendermode InteractiveServer
+@inject FirebaseApp fireApp;
+@inject ILogsDB dataBase;
+
+<PageTitle>Channels</PageTitle>
+
+<h1>Channels</h1>
+
+<p>@Status</p>
+<br />
+<button class="btn btn-primary" style="width:200px; margin:5px" @onclick="GetAuth">Авторизоваться</button>
+<label>@Auth</label>
+<br />
+<button class="btn btn-primary" style="width:200px;margin:5px" @onclick="Channel">Отправить push</button>
+<div>
+	<label>
+		Сообщение push:
+		<InputText @bind-Value="MessageValue" />
+		<InputText @bind-Value="MessageCount" style="width:50px" />
+	</label>
+</div>
+<br />
+<label>@LastPush</label>
+
+
+@code {
+	private int currentCount = 0;
+
+	protected string Auth { get; set; } = "Не ваторизовано";
+	protected string LastPush { get; set; } = "";
+	protected string Status { get; set; } = "";
+	protected string MessageValue { get; set; }
+	protected string MessageCount { get; set; }
+
+	private void IncrementCount()
+	{
+		currentCount++;
+	}
+
+	private void GetAuth()
+	{
+		var app = fireApp;
+		var defaultAuth = FirebaseAuth.GetAuth(fireApp);
+		defaultAuth.ListUsersAsync(new ListUsersOptions() { });
+		Auth = JsonConvert.SerializeObject(defaultAuth, Formatting.Indented);
+	}
+
+	async Task Channel()
+	{
+		var messaging = FirebaseMessaging.GetMessaging(fireApp);
+		var defaultAuth = FirebaseAuth.GetAuth(fireApp);
+
+		// var RESPONSE = defaultAuth.ListUsersAsync(new ListUsersOptions() { });
+		// var las = await RESPONSE.ToListAsync();
+
+		//fireApp.
+		try
+		{
+			var sw = new Stopwatch();
+			sw.Restart();
+			int sendCount;
+
+			sendCount = 1;
+			var tickDate = DateTime.Now.Date.Ticks.ToString();
+
+
+			var dict = new Dictionary<string, string>();
+			dict.Add("key", "_value");
+			var msgs = Enumerable.Range(0, sendCount).Select(index =>
+		new Message()
+			{
+				Notification = new Notification() { Title = $"Channel of  {tickDate}", Body = "Custom text" },
+				Topic = "AFL-3",
+				Data = dict
+			}
+			);
+
+			Status = "отпарвляем сообщение";
+			try
+			{
+				foreach (var message in msgs)
+				{
+					var sresponse = await messaging.SendAsync(message);
+					LastPush += sresponse + Environment.NewLine;
+				}
+				Status = $"доставлено {sw.Elapsed}";
+			}
+			catch (Exception error)
+			{
+				Status = $"Ошибка {error.Message}";
+			}
+
+			var credential = GoogleCredential.FromFile("profpushsender-firebase.json");
+			var builder = new PublisherClientBuilder();
+			builder.GoogleCredential = credential;
+			builder.TopicName = new TopicName("profpushsender", "AFL-3");
+			var client = await builder.BuildAsync();
+			var newTopic = new Topic() { Name = "AFL-4" };
+			PublisherServiceApiClient clt;
+
+			var bb = new SubscriberClientBuilder();
+			bb.GoogleCredential = credential;
+
+			var vres = await client.PublishAsync(new PubsubMessage
+				{
+					Data = ByteString.CopyFromUtf8("TEst message from AFL-3"),
+					Attributes =
+						{
+							{ "description", "Simple text message" }
+						}
+				});
+
+			foreach (var topc in ListProjectTopics("ProfPushSender", out clt))
+			{
+				var na = topc.Name;
+				var sbs = clt.ListSubscriptionsInTopic(topc.TopicName.ProjectId, topc.TopicName.TopicId).ToList();
+				var sendresponse = await clt.PublishMessagesAsync(topc.TopicName.ProjectId, topc.TopicName.TopicId, new[] { "MEss1", "Mess2" });
+				var v = sendresponse?.MessageIds;
+			}
+			// var crRes = clt.NewTopic("ProfPushSender", );
+			// var tnn = crRes.TopicName;
+			//var resp = await client.Publ|ishAsync(new PubsubMessage());
+			var variable = Environment.GetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", EnvironmentVariableTarget.Machine);
+			SubscriberServiceApiClient subscriberService = await SubscriberServiceApiClient.CreateAsync();
+			//credentials: credential.ToChannelCredentials());
+			var pubscriberServiceB = new PublisherServiceApiClientBuilder();
+			//pubscriberServiceB.Credential = credential;
+			pubscriberServiceB.GoogleCredential = credential;
+			var pub = pubscriberServiceB.Build();
+
+			var r = new ListTopicsRequest() { Project = "profpushsender" };
+			var nt = new TopicName("profpushsender", DateTime.Now.Date.Ticks.ToString());
+			var tr = new ListTopicSubscriptionsRequest() { Topic = nt.ToString() };
+
+			//var topi = pub.GetTopic(DateTime.Now.Date.Ticks.ToString());
+
+			// var r2 = new ListSnapshotsRequest() { Project = "profpushsender" };
+			// var response1 = subscriberService.ListSnapshots(r2);
+			// var list1 = response1.ToList();
+			var top = new Topic();
+			top.TopicName = new TopicName("profpushsender", "news");
+			var response = pub.CreateTopic(top);
+			var n = response.Name;
+			// var list = response.ToList();
+			// foreach (var t in list)
+			// {
+			// 	string s = t.Name;
+			// }
+		}
+		catch (Exception err)
+		{
+			int i = 0;
+		}
+		// TopicManagementResponse
+		await Task.CompletedTask;
+	}
+
+	public IEnumerable<Topic> ListProjectTopics(string projectId, out PublisherServiceApiClient publisher)
+	{
+		publisher = PublisherServiceApiClient.Create();
+		ProjectName projectName = ProjectName.FromProject(projectId);
+		IEnumerable<Topic> topics = publisher.ListTopics(projectName);
+		return topics;
+	}
+
+
+
+	async Task SendByToken(string msg, string count)
+	{
+		var sw = new Stopwatch();
+		sw.Restart();
+		int sendCount;
+		if (int.TryParse(count, out sendCount) == false)
+			sendCount = 1;
+		var tickDate = DateTime.Now.Date.Ticks.ToString();
+
+		Push push = dataBase.Pushes.FirstOrDefault()!;
+
+		var msgs = Enumerable.Range(0, sendCount).Select(index =>
+			new Message()
+				{
+					Notification = new Notification() { Title = $"Channel of  {tickDate}", Body = msg },
+
+					Token = push.Token
+				}
+		);
+
+		Status = "отпарвляем сообщение";
+
+		var messaging = FirebaseMessaging.GetMessaging(fireApp);
+		try
+		{
+			foreach (var message in msgs)
+			{
+				var response = await messaging.SendAsync(message);
+				LastPush += response + Environment.NewLine;
+			}
+			Status = $"доставлено {sw.Elapsed}";
+		}
+		catch (Exception error)
+		{
+			Status = $"Ошибка {error.Message}";
+		}
+	}
+
+}

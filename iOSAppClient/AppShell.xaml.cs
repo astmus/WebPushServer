@@ -1,6 +1,4 @@
-﻿using Microsoft.Maui.Controls;
-
-namespace AndroidAppClient
+﻿namespace iOSAppClient
 {
 	public partial class AppShell : Shell
 	{

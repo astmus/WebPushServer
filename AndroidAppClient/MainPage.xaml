@@ -17,11 +17,12 @@
 				Text="Hello, World!"
 				Style="{StaticResource Headline}"
 				SemanticProperties.HeadingLevel="Level1" />
+
 			<HorizontalStackLayout>
 				<Label TextColor="OrangeRed"
-				Text="А подписаны ли мы"
+				Text="Подписаться на новости"
 				Style="{StaticResource SubHeadline}"/>
-				<Label x:Name="subsLabel"
+				<Label x:Name="subsLabelNews"
 				Text="{Binding Path=isSubscribed}"
 				Style="{StaticResource SubHeadline}" MinimumWidthRequest="40"/>
 
@@ -35,13 +36,28 @@
 				Clicked="OnCounterClicked"
 				HorizontalOptions="Fill" />
 
+			<Label TextColor="OrangeRed"
+				Text="На сегодня" HorizontalOptions="Start"
+				Style="{StaticResource SubHeadline}" x:Name="subsLabel"/>
+
 			<Button
 				x:Name="SubBtn"
 				Text="Подписаться на сегодня" 
 				SemanticProperties.Hint="Подписаться на сегодня"
 				Clicked="SubBtn_Clicked"
 				HorizontalOptions="Fill" />
-
+			<HorizontalStackLayout>
+				<Label TextColor="OrangeRed" Text="Подписаны на" HorizontalOptions="Start" Style="{StaticResource SubHeadline}" />
+				<Label TextColor="OrangeRed" Margin="5,0,0,0" HorizontalOptions="Start" Style="{StaticResource SubHeadline}" x:Name="subsNameLabel"/>
+			</HorizontalStackLayout>
+			<HorizontalStackLayout>
+				<Button Margin="5,0,5,0"
+				x:Name="SubBtnNews"
+				Text="Подписаться на ..." 				
+				Clicked="SubBtnNews_Clicked"
+				HorizontalOptions="Fill" />
+				<Entry x:Name="inp" Placeholder="название канала"/>
+			</HorizontalStackLayout>
 		</VerticalStackLayout>
 	</ScrollView>
 
